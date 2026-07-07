@@ -1,0 +1,21 @@
+telegram:
+  token: "xxx"
+  chat_id: xxx
+
+scheduler:
+  tick_interval: 1m
+  alert_threshold: 30m
+
+systems:
+  - id: CP
+    name: "Club Points"
+    max: 1
+    regen_minutes: 480
+  - id: TP
+    name: "Training Points"
+    max: 100
+    regen_minutes: 10
+  - id: RP
+    name: "Race Points"
+    max: 5
+    regen_minutes: 120

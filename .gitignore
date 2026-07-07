@@ -1,0 +1,137 @@
+# ==========================================
+# Go
+# ==========================================
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Build output
+bin/
+dist/
+build/
+out/
+
+# Go workspace
+go.work.sum
+
+# Coverage
+*.cover
+*.coverprofile
+*.cov
+coverage
+coverage.out
+coverage.html
+
+# Benchmark output
+*.bench
+
+# Profiling
+*.pprof
+cpu.prof
+mem.prof
+
+# ==========================================
+# Dependency directories (usually unnecessary)
+# ==========================================
+
+vendor/
+
+# ==========================================
+# Environment & Secrets
+# ==========================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+
+# ==========================================
+# Database
+# ==========================================
+
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# Uncomment if you intentionally commit seed database
+# !seed.db
+
+# ==========================================
+# Logs
+# ==========================================
+
+*.log
+logs/
+log/
+
+# ==========================================
+# Temporary files
+# ==========================================
+
+tmp/
+temp/
+.cache/
+
+# ==========================================
+# IDE
+# ==========================================
+
+# VS Code
+.vscode/
+
+# GoLand / IntelliJ
+.idea/
+*.iml
+
+# Vim
+*.swp
+*.swo
+
+# ==========================================
+# OS Files
+# ==========================================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==========================================
+# Generated files
+# ==========================================
+
+*.generated.go
+*.gen.go
+
+# ==========================================
+# Testing
+# ==========================================
+
+testdata/tmp/
+test-output/
+
+# ==========================================
+# Project-specific
+# ==========================================
+
+# Local SQLite database
+data.db
+
+# Local config overrides
+config.local.yaml
+config.dev.yaml
+config.test.yaml
+config.yaml
+
+# Local notes
+improve.txt
