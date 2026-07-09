@@ -76,3 +76,7 @@ func FormatHelp() string {
 
 	return b.String()
 }
+
+func FormatServiceOnline() string {
+	return "✅ Service is online"
+}

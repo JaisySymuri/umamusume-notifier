@@ -29,18 +29,18 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 }
 
 func (b *Bot) handleHelp(msg *tgbotapi.Message) {
-	b.send(msg.Chat.ID, FormatHelp())
+	b.SendText(msg.Chat.ID, FormatHelp())
 }
 
 func (b *Bot) handleStatus(msg *tgbotapi.Message) {
 	status := b.service.Status()
-	b.send(msg.Chat.ID, FormatStatus(status))
+	b.SendText(msg.Chat.ID, FormatStatus(status))
 }
 
 func (b *Bot) handleUse(msg *tgbotapi.Message) {
 	systemID, amount, err := ParseUse(msg.CommandArguments())
 	if err != nil {
-		b.send(msg.Chat.ID, err.Error())
+		b.SendText(msg.Chat.ID, err.Error())
 		return
 	}
 
@@ -49,7 +49,7 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 		systemID,
 		amount,
 	); err != nil {
-		b.send(msg.Chat.ID, err.Error())
+		b.SendText(msg.Chat.ID, err.Error())
 		return
 	}
 
@@ -59,7 +59,7 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 		amount = -amount
 	}
 
-	b.send(
+	b.SendText(
 		msg.Chat.ID,
 		fmt.Sprintf(
 			"Updated %s: %s %d point(s).",
@@ -73,7 +73,7 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 	systemID, minutes, err := ParseElapsed(msg.CommandArguments())
 	if err != nil {
-		b.send(msg.Chat.ID, err.Error())
+		b.SendText(msg.Chat.ID, err.Error())
 		return
 	}
 
@@ -82,11 +82,11 @@ func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 		systemID,
 		minutes,
 	); err != nil {
-		b.send(msg.Chat.ID, err.Error())
+		b.SendText(msg.Chat.ID, err.Error())
 		return
 	}
 
-	b.send(
+	b.SendText(
 		msg.Chat.ID,
 		fmt.Sprintf(
 			"Updated %s: elapsed time set to %d minute(s).",
@@ -99,7 +99,7 @@ func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 func (b *Bot) handleReply(msg *tgbotapi.Message) {
 	amount, err := strconv.Atoi(strings.TrimSpace(msg.Text))
 	if err != nil {
-		b.send(
+		b.SendText(
 			msg.Chat.ID,
 			"Reply with the number of points you used (for example: 20).",
 		)
@@ -111,16 +111,16 @@ func (b *Bot) handleReply(msg *tgbotapi.Message) {
 		msg.ReplyToMessage.MessageID,
 		amount,
 	); err != nil {
-		b.send(msg.Chat.ID, err.Error())
+		b.SendText(msg.Chat.ID, err.Error())
 		return
 	}
 
-	b.send(
+	b.SendText(
 		msg.Chat.ID,
 		fmt.Sprintf("Recorded %d point(s).", amount),
 	)
 }
 
 func (b *Bot) handleUnknownCommand(msg *tgbotapi.Message) {
-	b.send(msg.Chat.ID, "Unknown command. Type /help for a list of available commands.")
+	b.SendText(msg.Chat.ID, "Unknown command. Type /help for a list of available commands.")
 }

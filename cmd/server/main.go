@@ -81,6 +81,8 @@ func main() {
 
 	go scheduler.Run(ctx)
 
+	bot.SendText(cfg.Telegram.ChatID, telegram.FormatServiceOnline())
+
 	if err := bot.Start(ctx); err != nil && ctx.Err() == nil {
 		log.Fatal(err)
 	}

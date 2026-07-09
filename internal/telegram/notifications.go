@@ -25,7 +25,7 @@ func (n *Notifier) Notify(
 	ctx context.Context,
 	event notification.Event,
 ) error {
-	messageID, err := n.bot.Notify(
+	messageID, err := n.bot.SendNotification(
 		n.chatID,
 		event,
 	)
