@@ -21,6 +21,12 @@ type Service interface {
 		minutes int,
 	) error
 
+	SetRegen(
+		ctx context.Context,
+		systemID string,
+		minutesLeft int,
+	) error
+
 	ConsumeReply(
 		ctx context.Context,
 		messageID int,

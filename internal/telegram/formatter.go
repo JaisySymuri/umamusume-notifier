@@ -73,6 +73,7 @@ func FormatHelp() string {
 	b.WriteString("/help - Show this help message.\n")
 	b.WriteString("/use <SYSTEM> <AMOUNT> - Consume or add points.\n")
 	b.WriteString("/elapsed <SYSTEM> <MINUTES> - Set elapsed regeneration time.")
+	b.WriteString("\n/regen <SYSTEM> <MINUTES_LEFT> - Set minutes left until the next point.")
 
 	return b.String()
 }

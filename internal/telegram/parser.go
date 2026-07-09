@@ -49,3 +49,29 @@ func ParseElapsed(args string) (systemID string, minutes int, err error) {
 
 	return strings.ToUpper(fields[0]), minutes, nil
 }
+
+// ParseRegen parses:
+//
+//	/regen TP 15
+//
+// returning:
+//
+//	systemID = "TP"
+//	minutesLeft = 15
+func ParseRegen(args string) (systemID string, minutesLeft int, err error) {
+	fields := strings.Fields(args)
+	if len(fields) != 2 {
+		return "", 0, fmt.Errorf("usage: /regen <SYSTEM> <MINUTES_LEFT>")
+	}
+
+	minutesLeft, err = strconv.Atoi(fields[1])
+	if err != nil {
+		return "", 0, fmt.Errorf("minutes must be an integer")
+	}
+
+	if minutesLeft < 0 {
+		return "", 0, fmt.Errorf("minutes must be non-negative")
+	}
+
+	return strings.ToUpper(fields[0]), minutesLeft, nil
+}

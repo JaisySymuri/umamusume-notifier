@@ -23,6 +23,9 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 	case "elapsed":
 		b.handleElapsed(msg)
 
+	case "regen":
+		b.handleRegen(msg)
+
 	default:
 		b.handleUnknownCommand(msg)
 	}
@@ -92,6 +95,32 @@ func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 			"Updated %s: elapsed time set to %d minute(s).",
 			systemID,
 			minutes,
+		),
+	)
+}
+
+func (b *Bot) handleRegen(msg *tgbotapi.Message) {
+	systemID, minutesLeft, err := ParseRegen(msg.CommandArguments())
+	if err != nil {
+		b.SendText(msg.Chat.ID, err.Error())
+		return
+	}
+
+	if err := b.service.SetRegen(
+		context.Background(),
+		systemID,
+		minutesLeft,
+	); err != nil {
+		b.SendText(msg.Chat.ID, err.Error())
+		return
+	}
+
+	b.SendText(
+		msg.Chat.ID,
+		fmt.Sprintf(
+			"Updated %s: %d minute(s) left until the next point.",
+			systemID,
+			minutesLeft,
 		),
 	)
 }
