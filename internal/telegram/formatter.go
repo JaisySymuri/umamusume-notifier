@@ -15,6 +15,7 @@ func FormatStatus(statuses []app.Status) string {
 	}
 
 	var b strings.Builder
+	now := time.Now()
 
 	b.WriteString("📊 Point Status\n\n")
 
@@ -38,8 +39,9 @@ func FormatStatus(statuses []app.Status) string {
 		} else {
 			fmt.Fprintf(
 				&b,
-				"  Full in: %s\n",
+				"  Full in: %s (%s)\n",
 				formatDuration(status.TimeUntilFull),
+				formatFullTime(now, status.TimeUntilFull),
 			)
 		}
 
