@@ -45,7 +45,7 @@ Combat Points (CP)
 
 Training Points (TP)
   80/100
-  Full in: 2h 30m
+  Full in: 2h 30m (20:38 WIB)
 `
 
 	if got != want {

@@ -13,10 +13,14 @@ import (
 )
 
 type mockService struct {
-	setCalled   bool
-	setSystemID string
-	setAmount   int
-	setErr      error
+	setCalled         bool
+	setSystemID       string
+	setAmount         int
+	setErr            error
+	consumeReplyCalled bool
+	consumeReplyMsgID  int
+	consumeReplyAmount int
+	consumeReplyErr    error
 }
 
 func (m *mockService) Status() []app.Status {
@@ -46,8 +50,11 @@ func (m *mockService) SetRegen(context.Context, string, int) error {
 	return nil
 }
 
-func (m *mockService) ConsumeReply(context.Context, int, int) error {
-	return nil
+func (m *mockService) ConsumeReply(_ context.Context, messageID int, amount int) error {
+	m.consumeReplyCalled = true
+	m.consumeReplyMsgID = messageID
+	m.consumeReplyAmount = amount
+	return m.consumeReplyErr
 }
 
 type mockSender struct {
@@ -131,5 +138,61 @@ func TestHandleSetError(t *testing.T) {
 
 	if sender.lastText != "boom" {
 		t.Fatalf("response = %q, want %q", sender.lastText, "boom")
+	}
+}
+
+func TestHandleReply_ReminderResponse(t *testing.T) {
+	service := &mockService{}
+	bot, sender := newTestBot(service)
+
+	msg := &tgbotapi.Message{
+		Chat: &tgbotapi.Chat{ID: 123},
+		Text: "60",
+		ReplyToMessage: &tgbotapi.Message{
+			MessageID: 456,
+			Text:      "✅ TP is now full.\n\nReply with the amount of points you use.",
+		},
+	}
+
+	bot.handleReply(msg)
+
+	if !service.consumeReplyCalled {
+		t.Fatal("ConsumeReply was not called")
+	}
+
+	if service.consumeReplyMsgID != 456 {
+		t.Fatalf("messageID = %d, want 456", service.consumeReplyMsgID)
+	}
+
+	if service.consumeReplyAmount != 60 {
+		t.Fatalf("amount = %d, want 60", service.consumeReplyAmount)
+	}
+
+	if sender.lastText != "Recorded 60 point(s)." {
+		t.Fatalf("response = %q, want %q", sender.lastText, "Recorded 60 point(s).")
+	}
+}
+
+func TestHandleReply_InvalidAmount(t *testing.T) {
+	service := &mockService{}
+	bot, sender := newTestBot(service)
+
+	msg := &tgbotapi.Message{
+		Chat: &tgbotapi.Chat{ID: 123},
+		Text: "sixty",
+		ReplyToMessage: &tgbotapi.Message{
+			MessageID: 456,
+			Text:      "✅ TP is now full.\n\nReply with the amount of points you use.",
+		},
+	}
+
+	bot.handleReply(msg)
+
+	if service.consumeReplyCalled {
+		t.Fatal("ConsumeReply should not be called")
+	}
+
+	if sender.lastText != "Reply with the number of points you used (for example: 20)." {
+		t.Fatalf("response = %q, want validation message", sender.lastText)
 	}
 }
