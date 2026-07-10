@@ -15,6 +15,12 @@ type Service interface {
 		amount int,
 	) error
 
+	Set(
+		ctx context.Context,
+		systemID string,
+		amount int,
+	) error
+
 	SetElapsed(
 		ctx context.Context,
 		systemID string,

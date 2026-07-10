@@ -25,6 +25,9 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 
 	case "regen":
 		b.handleRegen(msg)
+	
+	case "set":
+		b.handleSet(msg)
 
 	default:
 		b.handleUnknownCommand(msg)
@@ -57,6 +60,39 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 	}
 
 	action := "consumed"
+	if amount < 0 {
+		action = "added"
+		amount = -amount
+	}
+
+	b.SendText(
+		msg.Chat.ID,
+		fmt.Sprintf(
+			"Updated %s: %s %d point(s).",
+			systemID,
+			action,
+			amount,
+		),
+	)
+}
+
+func (b *Bot) handleSet(msg *tgbotapi.Message) {
+	systemID, amount, err := ParseSet(msg.CommandArguments())
+	if err != nil {
+		b.SendText(msg.Chat.ID, err.Error())
+		return
+	}
+
+	if err := b.service.Set(
+		context.Background(),
+		systemID,
+		amount,
+	); err != nil {
+		b.SendText(msg.Chat.ID, err.Error())
+		return
+	}
+
+	action := "set"
 	if amount < 0 {
 		action = "added"
 		amount = -amount
@@ -124,6 +160,8 @@ func (b *Bot) handleRegen(msg *tgbotapi.Message) {
 		),
 	)
 }
+
+
 
 func (b *Bot) handleReply(msg *tgbotapi.Message) {
 	amount, err := strconv.Atoi(strings.TrimSpace(msg.Text))

@@ -28,6 +28,32 @@ func ParseUse(args string) (systemID string, amount int, err error) {
 	return strings.ToUpper(fields[0]), amount, nil
 }
 
+// ParseSet parses:
+//
+//	/set TP 20
+//
+// returning:
+//
+//	systemID = "TP"
+//	amount = 20
+func ParseSet(args string) (systemID string, amount int, err error) {
+	fields := strings.Fields(args)
+	if len(fields) != 2 {
+		return "", 0, fmt.Errorf("usage: /set <SYSTEM> <AMOUNT>")
+	}
+
+	amount, err = strconv.Atoi(fields[1])
+	if err != nil {
+		return "", 0, fmt.Errorf("amount must be an integer")
+	}
+
+	if amount < 0 {
+		return "", 0, fmt.Errorf("amount must be non-negative")
+	}
+
+	return strings.ToUpper(fields[0]), amount, nil
+}
+
 // ParseElapsed parses:
 //
 //	/elapsed TP 15
