@@ -6,23 +6,19 @@ SERVICE="umamusume-notifier"
 BINARY="umamusume-notifier"
 INSTALL_DIR="/opt/umamusume-notifier"
 
-echo "==> Pulling latest source..."
-git pull
+cleanup() {
+    echo "Ensuring service is running..."
+    sudo systemctl start "$SERVICE" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
 
-echo "==> Building..."
+git pull
 go build -o "$BINARY" ./cmd/server
 
-echo "==> Stopping service..."
 sudo systemctl stop "$SERVICE"
-
-echo "==> Installing binary..."
 sudo install -m 755 "$BINARY" "$INSTALL_DIR/$BINARY"
 
-echo "==> Starting service..."
 sudo systemctl start "$SERVICE"
-
-echo "==> Checking service status..."
 systemctl --no-pager --lines=10 status "$SERVICE"
 
-echo
-echo "✅ Update completed successfully."git 
+echo "✅ Update completed."
