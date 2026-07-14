@@ -22,7 +22,7 @@ func TestConsume(t *testing.T) {
 			elapsed:     7 * time.Minute,
 			amount:      1,
 			wantCurrent: 4,
-			wantElapsed: 0,
+			wantElapsed: 7 * time.Minute,
 		},
 		{
 			name:        "consume many",
@@ -31,7 +31,7 @@ func TestConsume(t *testing.T) {
 			elapsed:     5 * time.Minute,
 			amount:      3,
 			wantCurrent: 5,
-			wantElapsed: 0,
+			wantElapsed: 5 * time.Minute,
 		},
 		{
 			name:        "consume all",
@@ -40,7 +40,7 @@ func TestConsume(t *testing.T) {
 			elapsed:     8 * time.Minute,
 			amount:      5,
 			wantCurrent: 0,
-			wantElapsed: 0,
+			wantElapsed: 8 * time.Minute,
 		},
 		{
 			name:        "consume more than current",
@@ -49,7 +49,7 @@ func TestConsume(t *testing.T) {
 			elapsed:     4 * time.Minute,
 			amount:      10,
 			wantCurrent: 0,
-			wantElapsed: 0,
+			wantElapsed: 4 * time.Minute,
 		},
 		{
 			name:        "consume zero ignored",

@@ -133,7 +133,7 @@ func (s *PointSystem) Consume(amount int) {
     if s.Current < 0 {
         s.Current = 0
     }
-    s.Elapsed = 0 // matches prototype: consuming resets the in-progress regen timer
+    // Consuming keeps the in-progress regen timer intact.
 }
 ```
 

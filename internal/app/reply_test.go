@@ -50,8 +50,8 @@ func TestManagerConsumeReply(t *testing.T) {
 		t.Fatalf("Current = %d, want 40", system.Current)
 	}
 
-	if system.Elapsed != 0 {
-		t.Fatalf("Elapsed = %v, want 0", system.Elapsed)
+	if system.Elapsed != 5*time.Minute {
+		t.Fatalf("Elapsed = %v, want 5m0s", system.Elapsed)
 	}
 
 	reminder := manager.reminders["TP"]

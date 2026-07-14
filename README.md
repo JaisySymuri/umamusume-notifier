@@ -105,6 +105,7 @@ That reply is mapped back to the reminder message and processed as a point consu
 - The bot is restricted to one chat ID from config.
 - Point values are persisted in SQLite.
 - Reminder flags are reset after a manual consume or point set.
+- Manual consume keeps any in-progress regeneration time intact.
 - Current points are clamped between `0` and the system maximum.
 
 ## Development

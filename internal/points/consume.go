@@ -1,6 +1,6 @@
 package points
 
-// Consume spends points and resets the regeneration progress.
+// Consume spends points while preserving the current regeneration progress.
 //
 // Consuming more points than currently available will clamp the current
 // points to zero.
@@ -14,9 +14,6 @@ func (p *PointSystem) Consume(amount int) {
 	if p.Current < 0 {
 		p.Current = 0
 	}
-
-	// Consuming always restarts the regeneration timer.
-	p.Elapsed = 0
 }
 
 // Add grants points up to the configured maximum.
