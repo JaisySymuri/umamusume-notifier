@@ -37,8 +37,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// creates an empty slice of points.Definition with enough capacity to hold all systems from config
 	definitions := make([]points.Definition, 0, len(cfg.Systems))
 
+	
 	for _, system := range cfg.Systems {
 		definitions = append(definitions, points.Definition{
 			ID:           system.ID,

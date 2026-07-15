@@ -9,15 +9,17 @@ import (
 )
 
 type Manager struct {
-	mu sync.RWMutex
+    mu sync.RWMutex
 
-	store storage.Store
+    // Dependencies
+    store storage.Store
 
-	pointSystems map[string]*points.PointSystem
+    // State
+    pointSystems map[string]*points.PointSystem
+    reminders    map[string]*points.ReminderState
 
-	reminders map[string]*points.ReminderState
-
-	alertThreshold time.Duration
+    // Configuration
+    alertThreshold time.Duration
 }
 
 func New(

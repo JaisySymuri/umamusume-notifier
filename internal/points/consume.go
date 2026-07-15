@@ -38,8 +38,7 @@ func (p *PointSystem) Add(amount int) {
 // Set assigns the current points directly.
 //
 // Values below zero are clamped to zero and values above the maximum are
-// clamped to the configured maximum. Setting the current points resets the
-// regeneration progress because the timer no longer matches the visible state.
+// clamped to the configured maximum. 
 func (p *PointSystem) Set(amount int) {
 	p.Current = amount
 
@@ -49,7 +48,5 @@ func (p *PointSystem) Set(amount int) {
 
 	if p.Current > p.Max {
 		p.Current = p.Max
-	}
-
-	p.Elapsed = 0
+	}	
 }
