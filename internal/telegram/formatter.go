@@ -15,11 +15,11 @@ type statusGroup struct {
 
 var statusGroups = []statusGroup{
 	{
-		Header: "🐴 Umamusume",
+		Header: "🦄 Umamusume",
 		IDs:    []string{"CP", "RP", "TP"},
 	},
 	{
-		Header: "🎵 Holodori",
+		Header: "🎤 Holodori",
 		IDs:    []string{"1P", "2P", "LP", "MP"},
 	},
 }
