@@ -1,0 +1,33 @@
+remotecfg {
+	url            = "https://fleet-management-prod-005.grafana.net"
+	id             = "zabbix-ubuntu"
+	poll_frequency = "60s"
+	attributes     = encoding.from_json(coalesce(``, `{}`))
+
+	basic_auth {
+		username = "719144"
+		password = sys.env("GCLOUD_RW_API_KEY")
+	}
+}
+
+prometheus.remote_write "metrics_service" {
+	endpoint {
+		url = "https://prometheus-prod-18-prod-ap-southeast-0.grafana.net/api/prom/push"
+
+		basic_auth {
+			username = "1146198"
+			password = sys.env("GCLOUD_RW_API_KEY")
+		}
+	}
+}
+
+loki.write "grafana_cloud_loki" {
+	endpoint {
+		url = "https://logs-prod-011.grafana.net/loki/api/v1/push"
+
+		basic_auth {
+			username = "672179"
+			password = sys.env("GCLOUD_RW_API_KEY")
+		}
+	}
+}
