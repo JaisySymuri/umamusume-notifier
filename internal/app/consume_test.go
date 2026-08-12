@@ -201,7 +201,7 @@ func TestManagerSet(t *testing.T) {
 		t.Fatalf("Current = %d, want 75", system.Current)
 	}
 
-	if system.Elapsed != 0 {
+	if system.Elapsed != 5*time.Minute {
 		t.Fatalf("Elapsed = %v, want 5m0s", system.Elapsed)
 	}
 

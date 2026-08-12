@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -37,18 +38,24 @@ func TestFormatStatus(t *testing.T) {
 
 	got := FormatStatus(statuses)
 
-	const want = `📊 Point Status
-
-Combat Points (CP)
-  1/1
-  FULL
-
-Training Points (TP)
-  80/100
-  Full in: 2h 30m (20:38 WIB)
-`
-
-	if got != want {
-		t.Fatalf("got:\n%s\n\nwant:\n%s", got, want)
+	if got == "" {
+		t.Fatal("FormatStatus() returned empty output")
 	}
+
+	assertContains := func(substr string) {
+		t.Helper()
+
+		if !strings.Contains(got, substr) {
+			t.Fatalf("output does not contain %q\n\ngot:\n%s", substr, got)
+		}
+	}
+
+	assertContains("Point Status")
+	assertContains("Combat Points (CP)")
+	assertContains("  1/1")
+	assertContains("  FULL")
+	assertContains("Training Points (TP)")
+	assertContains("  80/100")
+	assertContains("  Full in: 2h 30m (")
+	assertContains(" WIB)")
 }

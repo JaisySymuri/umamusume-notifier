@@ -19,3 +19,11 @@ systems:
     name: "Race Points"
     max: 5
     regen_minutes: 120
+  - id: 1P
+    name: "1st Island Points"
+    max: 1
+    regen_minutes: 480
+  - id: 2P
+    name: "2nd Island Points"
+    max: 5
+    regen_minutes: 600

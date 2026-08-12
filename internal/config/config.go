@@ -71,10 +71,17 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("at least one point system must be configured")
 	}
 
+	seen := make(map[string]struct{}, len(c.Systems))
+
 	for _, system := range c.Systems {
 		if system.ID == "" {
 			return fmt.Errorf("system.id is required")
 		}
+
+		if _, ok := seen[system.ID]; ok {
+			return fmt.Errorf("duplicate system.id %q", system.ID)
+		}
+		seen[system.ID] = struct{}{}
 
 		if system.Name == "" {
 			return fmt.Errorf("system.name is required")
