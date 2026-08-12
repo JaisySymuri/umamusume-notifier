@@ -28,6 +28,8 @@ func (s *SQLiteStore) LoadReminderStates(
 	for rows.Next() {
 		var (
 			state         points.ReminderState
+			fullSince     sql.NullTime
+			fullOverHour  sql.NullBool
 			lastMessageID sql.NullInt64
 		)
 
@@ -35,9 +37,19 @@ func (s *SQLiteStore) LoadReminderStates(
 			&state.SystemID,
 			&state.AlertSent,
 			&state.FullSent,
+			&fullSince,
+			&fullOverHour,
 			&lastMessageID,
 		); err != nil {
 			return nil, fmt.Errorf("scan reminder state: %w", err)
+		}
+
+		if fullSince.Valid {
+			state.FullSince = fullSince.Time.UTC()
+		}
+
+		if fullOverHour.Valid {
+			state.FullOverHourSent = fullOverHour.Bool
 		}
 
 		if lastMessageID.Valid {
@@ -72,6 +84,8 @@ func (s *SQLiteStore) SaveReminderState(
 		state.SystemID,
 		state.AlertSent,
 		state.FullSent,
+		nullTime(state.FullSince),
+		state.FullOverHourSent,
 		state.LastMessageID,
 	)
 	if err != nil {
@@ -79,4 +93,12 @@ func (s *SQLiteStore) SaveReminderState(
 	}
 
 	return nil
+}
+
+func nullTime(t time.Time) any {
+	if t.IsZero() {
+		return nil
+	}
+
+	return t.UTC()
 }

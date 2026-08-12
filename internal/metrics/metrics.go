@@ -22,6 +22,7 @@ var (
 	telegramDuration      *prometheus.HistogramVec
 	telegramErrors        *prometheus.CounterVec
 	storageDuration       *prometheus.HistogramVec
+	fullOverHourTotal     prometheus.Counter
 )
 
 func initMetrics() {
@@ -92,6 +93,13 @@ func initMetrics() {
 		[]string{"op"},
 	)
 
+	fullOverHourTotal = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "bot_full_over_hour_total",
+			Help: "Total point systems that remained full for more than one hour.",
+		},
+	)
+
 	registry.MustRegister(
 		collectors.NewGoCollector(),
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{
@@ -107,6 +115,7 @@ func initMetrics() {
 		telegramDuration,
 		telegramErrors,
 		storageDuration,
+		fullOverHourTotal,
 	)
 }
 
@@ -148,6 +157,11 @@ func ObserveTelegramAPIError(method, errorType string) {
 func ObserveStorageOp(op string, d time.Duration) {
 	ensureMetrics()
 	storageDuration.WithLabelValues(op).Observe(d.Seconds())
+}
+
+func ObserveFullOverHour() {
+	ensureMetrics()
+	fullOverHourTotal.Inc()
 }
 
 func Handler() http.Handler {

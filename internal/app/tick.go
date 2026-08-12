@@ -56,6 +56,14 @@ func (m *Manager) tick(now time.Time) []notification.Event {
 		case notification.Full:
 			reminder.AlertSent = true
 			reminder.FullSent = true
+			if reminder.FullSince.IsZero() {
+				reminder.FullSince = now
+			}
+		}
+
+		if reminder.FullSent && !reminder.FullOverHourSent && !reminder.FullSince.IsZero() && now.Sub(reminder.FullSince) >= time.Hour {
+			metrics.ObserveFullOverHour()
+			reminder.FullOverHourSent = true
 		}
 
 		event.ScheduledAt = now

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log"
 	"sync"
 	"time"
 
@@ -9,27 +10,30 @@ import (
 )
 
 type Manager struct {
-    mu sync.RWMutex
+	mu sync.RWMutex
 
-    // Dependencies
-    store storage.Store
+	// Dependencies
+	store  storage.Store
+	logger *log.Logger
 
-    // State
-    pointSystems map[string]*points.PointSystem
-    reminders    map[string]*points.ReminderState
+	// State
+	pointSystems map[string]*points.PointSystem
+	reminders    map[string]*points.ReminderState
 
-    // Configuration
-    alertThreshold time.Duration
+	// Configuration
+	alertThreshold time.Duration
 }
 
 func New(
 	store storage.Store,
+	logger *log.Logger,
 	alertThreshold time.Duration,
 ) *Manager {
 
 	return &Manager{
 		store:          store,
-		pointSystems: make(map[string]*points.PointSystem),
+		logger:         logger,
+		pointSystems:   make(map[string]*points.PointSystem),
 		reminders:      make(map[string]*points.ReminderState),
 		alertThreshold: alertThreshold,
 	}

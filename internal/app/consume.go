@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 	"umamusume-notifier/internal/points"
 )
 
@@ -25,8 +26,8 @@ func (m *Manager) Consume(
 		system.Consume(amount)
 	}
 
-	reminder.AlertSent = false
-	reminder.FullSent = false
+	m.logManualAdjustment(system, reminder, "consume", time.Now().UTC())
+	resetFullTracking(reminder)
 
 	systemToSave := system
 	reminderToSave := reminder
@@ -65,8 +66,8 @@ func (m *Manager) Set(
 
 	system.Set(amount)
 
-	reminder.AlertSent = false
-	reminder.FullSent = false
+	m.logManualAdjustment(system, reminder, "set", time.Now().UTC())
+	resetFullTracking(reminder)
 
 	systemToSave := system
 	reminderToSave := reminder

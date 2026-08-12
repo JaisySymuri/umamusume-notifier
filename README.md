@@ -87,7 +87,7 @@ The endpoint includes both Go/runtime collectors and app-specific metrics.
 
 ### App Metrics
 
-- `bot_commands_total{command,outcome}` - Telegram command usage by command and result
+- `bot_commands_total{command,outcome}` - Telegram command usage by command and result. Reply-to-reminder consumption is counted under `command="reply"`.
 - `bot_reminders_scheduled_total` - reminder events created by the scheduler
 - `bot_reminders_sent_total{outcome}` - reminder delivery attempts by result
 - `bot_reminder_delivery_delay_seconds` - time between scheduling and successful delivery
@@ -106,6 +106,29 @@ The endpoint also includes the standard Go/process collectors, such as:
 - `process_resident_memory_bytes`
 - `process_open_fds`
 - `process_max_fds`
+
+### Loki Logs
+
+When a system is manually adjusted after being full, the app emits a structured log line like:
+
+```text
+event=manual_adjust_after_full action=consume system_id=TP system_name="Training Points" full_for_minutes=87 adjusted_at=2026-08-12T15:30:00Z
+```
+
+This is meant for Loki queries such as:
+
+```logql
+{app="umamusume-notifier"} |= "event=manual_adjust_after_full" | logfmt
+```
+
+Useful fields:
+
+- `event` - always `manual_adjust_after_full`
+- `action` - `consume`, `set`, `elapsed`, or `regen`
+- `system_id` - point system ID
+- `system_name` - point system display name
+- `full_for_minutes` - how long the system was full before the manual change
+- `adjusted_at` - timestamp of the manual change in UTC
 
 ## Telegram Commands
 

@@ -53,6 +53,7 @@ func main() {
 
 	manager := app.New(
 		store,
+		log.Default(),
 		cfg.Scheduler.AlertThreshold,
 	)
 

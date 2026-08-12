@@ -23,8 +23,8 @@ func (m *Manager) SetElapsed(
 
 	system.SetElapsed(time.Duration(minutes) * time.Minute)
 
-	reminder.AlertSent = false
-	reminder.FullSent = false
+	m.logManualAdjustment(system, reminder, "elapsed", time.Now().UTC())
+	resetFullTracking(reminder)
 
 	systemToSave := system
 	reminderToSave := reminder
@@ -72,8 +72,8 @@ func (m *Manager) SetRegen(
 
 	system.SetElapsed(elapsed)
 
-	reminder.AlertSent = false
-	reminder.FullSent = false
+	m.logManualAdjustment(system, reminder, "regen", time.Now().UTC())
+	resetFullTracking(reminder)
 
 	systemToSave := system
 	reminderToSave := reminder

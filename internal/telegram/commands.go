@@ -196,6 +196,7 @@ func (b *Bot) handleReply(msg *tgbotapi.Message) {
 			msg.Chat.ID,
 			"Reply with the number of points you used (for example: 20).",
 		)
+		metrics.ObserveCommand("reply", "error")
 		return
 	}
 
@@ -205,6 +206,7 @@ func (b *Bot) handleReply(msg *tgbotapi.Message) {
 		amount,
 	); err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
+		metrics.ObserveCommand("reply", "error")
 		return
 	}
 
@@ -212,6 +214,7 @@ func (b *Bot) handleReply(msg *tgbotapi.Message) {
 		msg.Chat.ID,
 		fmt.Sprintf("Recorded %d point(s).", amount),
 	)
+	metrics.ObserveCommand("reply", "success")
 }
 
 func (b *Bot) handleUnknownCommand(msg *tgbotapi.Message) {

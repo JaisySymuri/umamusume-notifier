@@ -76,10 +76,12 @@ func TestSQLiteStore_RoundTrip(t *testing.T) {
 	}
 
 	state := &points.ReminderState{
-		SystemID:      "TP",
-		AlertSent:     true,
-		FullSent:      false,
-		LastMessageID: 12345,
+		SystemID:         "TP",
+		AlertSent:        true,
+		FullSent:         true,
+		FullSince:        time.Now().Add(-90 * time.Minute).UTC(),
+		FullOverHourSent: true,
+		LastMessageID:    12345,
 	}
 
 	if err := store.SaveReminderState(ctx, state); err != nil {
@@ -101,6 +103,18 @@ func TestSQLiteStore_RoundTrip(t *testing.T) {
 
 	if !states[0].AlertSent {
 		t.Error("AlertSent = false, want true")
+	}
+
+	if !states[0].FullSent {
+		t.Error("FullSent = false, want true")
+	}
+
+	if states[0].FullSince.IsZero() {
+		t.Error("FullSince should be set")
+	}
+
+	if !states[0].FullOverHourSent {
+		t.Error("FullOverHourSent = false, want true")
 	}
 
 	if states[0].LastMessageID != 12345 {

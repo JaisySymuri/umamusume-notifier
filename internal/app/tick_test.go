@@ -37,14 +37,15 @@ func TestManagerTickRecordsScheduledMetric(t *testing.T) {
 					Max:          100,
 					RegenMinutes: 10,
 				},
-				Current:  99,
+				Current:  100,
 				Elapsed:  0,
 				LastTick: time.Now().Add(-10 * time.Minute),
 			},
 		},
 		reminders: map[string]*points.ReminderState{
 			"TP": {
-				SystemID: "TP",
+				SystemID:  "TP",
+				FullSince: time.Now().Add(-2 * time.Hour),
 			},
 		},
 		alertThreshold: 30 * time.Minute,
@@ -73,5 +74,9 @@ func TestManagerTickRecordsScheduledMetric(t *testing.T) {
 
 	if !strings.Contains(rr.Body.String(), "bot_reminders_scheduled_total 1") {
 		t.Fatalf("expected scheduled metric, got:\n%s", rr.Body.String())
+	}
+
+	if !strings.Contains(rr.Body.String(), "bot_full_over_hour_total 1") {
+		t.Fatalf("expected over-hour metric, got:\n%s", rr.Body.String())
 	}
 }

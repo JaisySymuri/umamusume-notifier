@@ -5,9 +5,13 @@ import (
 	"context"
 	"errors"
 	"log"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"umamusume-notifier/internal/app"
+	"umamusume-notifier/internal/metrics"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -193,6 +197,31 @@ func TestHandleReply_ReminderResponse(t *testing.T) {
 
 	if sender.lastText != "Recorded 60 point(s)." {
 		t.Fatalf("response = %q, want %q", sender.lastText, "Recorded 60 point(s).")
+	}
+}
+
+func TestHandleReply_Metrics(t *testing.T) {
+	service := &mockService{}
+	bot, _ := newTestBot(service)
+
+	msg := &tgbotapi.Message{
+		Chat: &tgbotapi.Chat{ID: 123},
+		Text: "25",
+		ReplyToMessage: &tgbotapi.Message{
+			MessageID: 789,
+			Text:      "✅ TP is now full.\n\nReply with the amount of points you use.",
+		},
+	}
+
+	bot.handleReply(msg)
+
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	rr := httptest.NewRecorder()
+
+	metrics.Handler().ServeHTTP(rr, req)
+
+	if !strings.Contains(rr.Body.String(), `bot_commands_total{command="reply",outcome="success"}`) {
+		t.Fatalf("reply metric not found in output:\n%s", rr.Body.String())
 	}
 }
 

@@ -21,13 +21,14 @@ type PointSystem struct {
 type ReminderState struct {
 	SystemID string
 
-	AlertSent bool
-	FullSent  bool
+	AlertSent        bool
+	FullSent         bool
+	FullSince        time.Time
+	FullOverHourSent bool
 
 	// Telegram message ID of the latest reminder.
 	LastMessageID int
 }
-
 
 // New creates a validated PointSystem from a Definition.
 func New(def Definition) (*PointSystem, error) {

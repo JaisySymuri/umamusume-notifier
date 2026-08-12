@@ -1,7 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"context"
+	"log"
+	"strings"
 	"testing"
 	"time"
 
@@ -53,9 +56,9 @@ func TestManagerConsume(t *testing.T) {
 		pointSystems: map[string]*points.PointSystem{
 			"TP": {
 				Definition: points.Definition{
-					ID:            "TP",
-					Name:          "Training Points",
-					Max:           100,
+					ID:           "TP",
+					Name:         "Training Points",
+					Max:          100,
 					RegenMinutes: 10,
 				},
 				Current: 50,
@@ -101,6 +104,52 @@ func TestManagerConsume(t *testing.T) {
 
 	if !store.saveReminderCalled {
 		t.Fatal("SaveReminderState was not called")
+	}
+}
+
+func TestManagerConsume_LogsManualAdjustmentAfterFull(t *testing.T) {
+	store := &mockStore{}
+	var logBuf bytes.Buffer
+
+	manager := &Manager{
+		store:  store,
+		logger: log.New(&logBuf, "", 0),
+		pointSystems: map[string]*points.PointSystem{
+			"TP": {
+				Definition: points.Definition{
+					ID:           "TP",
+					Name:         "Training Points",
+					Max:          100,
+					RegenMinutes: 10,
+				},
+				Current: 50,
+			},
+		},
+		reminders: map[string]*points.ReminderState{
+			"TP": {
+				SystemID:  "TP",
+				FullSince: time.Now().Add(-87 * time.Minute).UTC(),
+				FullSent:  true,
+			},
+		},
+	}
+
+	if err := manager.Consume(context.Background(), "TP", 10); err != nil {
+		t.Fatalf("Consume() error = %v", err)
+	}
+
+	got := logBuf.String()
+	for _, want := range []string{
+		"event=manual_adjust_after_full",
+		"action=consume",
+		"system_id=TP",
+		"system_name=\"Training Points\"",
+		"full_for_minutes=87",
+		"adjusted_at=",
+	} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("log output missing %q\nlog:\n%s", want, got)
+		}
 	}
 }
 

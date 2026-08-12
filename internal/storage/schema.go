@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS reminder_states (
 
     full_sent BOOLEAN NOT NULL DEFAULT FALSE,
 
+    full_since DATETIME,
+
+    full_over_hour_sent BOOLEAN NOT NULL DEFAULT FALSE,
+
     last_message_id INTEGER
 );
 `
@@ -56,6 +60,8 @@ SELECT
     system_id,
     alert_sent,
     full_sent,
+    full_since,
+    full_over_hour_sent,
     last_message_id
 FROM reminder_states
 ORDER BY system_id;
@@ -66,11 +72,15 @@ INSERT INTO reminder_states (
     system_id,
     alert_sent,
     full_sent,
+    full_since,
+    full_over_hour_sent,
     last_message_id
 )
-VALUES (?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?)
 ON CONFLICT(system_id) DO UPDATE SET
     alert_sent = excluded.alert_sent,
     full_sent = excluded.full_sent,
+    full_since = excluded.full_since,
+    full_over_hour_sent = excluded.full_over_hour_sent,
     last_message_id = excluded.last_message_id;
 `
