@@ -15,11 +15,11 @@ type statusGroup struct {
 
 var statusGroups = []statusGroup{
 	{
-		Header: "🦄 Umamusume",
+		Header: "\U0001F40E Umamusume",
 		IDs:    []string{"CP", "RP", "TP"},
 	},
 	{
-		Header: "🎤 Holodori",
+		Header: "\U0001F3B5 Holodori",
 		IDs:    []string{"1P", "2P", "LP", "MP"},
 	},
 }
@@ -123,5 +123,5 @@ func FormatHelp() string {
 }
 
 func FormatServiceOnline() string {
-	return "✅ Service is online"
+	return "\u2705 Service is online"
 }

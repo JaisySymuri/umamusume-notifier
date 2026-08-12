@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"umamusume-notifier/internal/metrics"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -18,17 +20,34 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 		fallthrough
 	case "s":
 		b.handleStatus(msg)
+		metrics.ObserveCommand("status", "success")
 
 	case "use":
-		b.handleUse(msg)
+		if err := b.handleUse(msg); err != nil {
+			metrics.ObserveCommand("use", "error")
+		} else {
+			metrics.ObserveCommand("use", "success")
+		}
 
 	case "elapsed":
-		b.handleElapsed(msg)
+		if err := b.handleElapsed(msg); err != nil {
+			metrics.ObserveCommand("elapsed", "error")
+		} else {
+			metrics.ObserveCommand("elapsed", "success")
+		}
 
 	case "regen":
-		b.handleRegen(msg)
+		if err := b.handleRegen(msg); err != nil {
+			metrics.ObserveCommand("regen", "error")
+		} else {
+			metrics.ObserveCommand("regen", "success")
+		}
 	case "set":
-		b.handleSet(msg)
+		if err := b.handleSet(msg); err != nil {
+			metrics.ObserveCommand("set", "error")
+		} else {
+			metrics.ObserveCommand("set", "success")
+		}
 
 	default:
 		b.handleUnknownCommand(msg)
@@ -44,11 +63,11 @@ func (b *Bot) handleStatus(msg *tgbotapi.Message) {
 	b.SendText(msg.Chat.ID, FormatStatus(status))
 }
 
-func (b *Bot) handleUse(msg *tgbotapi.Message) {
+func (b *Bot) handleUse(msg *tgbotapi.Message) error {
 	systemID, amount, err := ParseUse(msg.CommandArguments())
 	if err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	if err := b.service.Consume(
@@ -57,7 +76,7 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 		amount,
 	); err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	action := "consumed"
@@ -75,13 +94,15 @@ func (b *Bot) handleUse(msg *tgbotapi.Message) {
 			amount,
 		),
 	)
+
+	return nil
 }
 
-func (b *Bot) handleSet(msg *tgbotapi.Message) {
+func (b *Bot) handleSet(msg *tgbotapi.Message) error {
 	systemID, amount, err := ParseSet(msg.CommandArguments())
 	if err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	if err := b.service.Set(
@@ -90,7 +111,7 @@ func (b *Bot) handleSet(msg *tgbotapi.Message) {
 		amount,
 	); err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	action := "set"
@@ -108,13 +129,15 @@ func (b *Bot) handleSet(msg *tgbotapi.Message) {
 			amount,
 		),
 	)
+
+	return nil
 }
 
-func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
+func (b *Bot) handleElapsed(msg *tgbotapi.Message) error {
 	systemID, minutes, err := ParseElapsed(msg.CommandArguments())
 	if err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	if err := b.service.SetElapsed(
@@ -123,7 +146,7 @@ func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 		minutes,
 	); err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	b.SendText(
@@ -134,13 +157,15 @@ func (b *Bot) handleElapsed(msg *tgbotapi.Message) {
 			minutes,
 		),
 	)
+
+	return nil
 }
 
-func (b *Bot) handleRegen(msg *tgbotapi.Message) {
+func (b *Bot) handleRegen(msg *tgbotapi.Message) error {
 	systemID, minutesLeft, err := ParseRegen(msg.CommandArguments())
 	if err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	if err := b.service.SetRegen(
@@ -149,7 +174,7 @@ func (b *Bot) handleRegen(msg *tgbotapi.Message) {
 		minutesLeft,
 	); err != nil {
 		b.SendText(msg.Chat.ID, err.Error())
-		return
+		return err
 	}
 
 	b.SendText(
@@ -160,6 +185,8 @@ func (b *Bot) handleRegen(msg *tgbotapi.Message) {
 			minutesLeft,
 		),
 	)
+
+	return nil
 }
 
 func (b *Bot) handleReply(msg *tgbotapi.Message) {

@@ -3,10 +3,16 @@ package storage
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"umamusume-notifier/internal/metrics"
 )
 
 // Initialize prepares the SQLite database for use.
 func (s *SQLiteStore) Initialize(ctx context.Context) error {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("initialize", time.Since(start))
+
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)

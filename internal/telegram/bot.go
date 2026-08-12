@@ -11,7 +11,7 @@ import (
 
 // Bot wraps the Telegram API client used by the application.
 type Bot struct {
-	api     *tgbotapi.BotAPI
+	api     telegramAPI
 	sender  Sender
 	service Service
 	logger  *log.Logger
@@ -35,4 +35,3 @@ func New(
 		logger:  logger,
 	}, nil
 }
-

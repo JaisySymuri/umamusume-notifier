@@ -12,6 +12,9 @@ func ShouldAlert(
 	reminder *points.ReminderState,
 	threshold time.Duration,
 ) (notification.Event, bool) {
+	if system == nil || reminder == nil {
+		return notification.Event{}, false
+	}
 
 	if system.Current >= system.Max {
 		if reminder.FullSent {
@@ -33,10 +36,6 @@ func ShouldAlert(
 			SystemID: system.ID,
 			Type:     notification.NearFull,
 		}, true
-	}
-
-	if system == nil || reminder == nil {
-		return notification.Event{}, false
 	}
 
 	return notification.Event{}, false

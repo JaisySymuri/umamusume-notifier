@@ -2,6 +2,9 @@ package notification
 
 import (
 	"context"
+	"time"
+
+	"umamusume-notifier/internal/metrics"
 )
 
 type Sender interface {
@@ -46,7 +49,13 @@ func (s *Service) Notify(
 		event,
 	)
 	if err != nil {
+		metrics.ObserveReminderSent("error")
 		return err
+	}
+
+	metrics.ObserveReminderSent("success")
+	if !event.ScheduledAt.IsZero() {
+		metrics.ObserveReminderDeliveryDelay(time.Since(event.ScheduledAt))
 	}
 
 	return s.recorder.RecordReminderMessage(

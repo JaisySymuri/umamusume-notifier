@@ -77,6 +77,36 @@ go run ./cmd/server
 
 The app creates and uses `data.db` in the project root.
 
+## Observability
+
+The app exposes Prometheus metrics on localhost:
+
+- `http://127.0.0.1:9091/metrics`
+
+The endpoint includes both Go/runtime collectors and app-specific metrics.
+
+### App Metrics
+
+- `bot_commands_total{command,outcome}` - Telegram command usage by command and result
+- `bot_reminders_scheduled_total` - reminder events created by the scheduler
+- `bot_reminders_sent_total{outcome}` - reminder delivery attempts by result
+- `bot_reminder_delivery_delay_seconds` - time between scheduling and successful delivery
+- `bot_telegram_api_requests_total{method,outcome}` - Telegram API requests by method and result
+- `bot_telegram_api_duration_seconds{method}` - Telegram API request latency
+- `bot_telegram_api_errors_total{method,error_type}` - Telegram API failures by bounded error category
+- `bot_storage_op_duration_seconds{op}` - SQLite operation latency by storage method
+
+### Default Go Metrics
+
+The endpoint also includes the standard Go/process collectors, such as:
+
+- `go_goroutines`
+- `go_memstats_*`
+- `process_cpu_seconds_total`
+- `process_resident_memory_bytes`
+- `process_open_fds`
+- `process_max_fds`
+
 ## Telegram Commands
 
 - `/status` - show all point systems

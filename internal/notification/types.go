@@ -1,5 +1,7 @@
 package notification
 
+import "time"
+
 type Type int
 
 const (
@@ -8,7 +10,8 @@ const (
 )
 
 type Event struct {
-	SystemID string
-	SystemName string
-	Type     Type
+	SystemID    string
+	SystemName  string
+	Type        Type
+	ScheduledAt time.Time
 }

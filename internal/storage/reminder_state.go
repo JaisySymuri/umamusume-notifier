@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
+	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/points"
 )
 
@@ -12,6 +14,8 @@ import (
 func (s *SQLiteStore) LoadReminderStates(
 	ctx context.Context,
 ) ([]*points.ReminderState, error) {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("load_reminder_states", time.Since(start))
 
 	rows, err := s.db.QueryContext(ctx, loadReminderStatesQuery)
 	if err != nil {
@@ -55,6 +59,8 @@ func (s *SQLiteStore) SaveReminderState(
 	ctx context.Context,
 	state *points.ReminderState,
 ) error {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("save_reminder_state", time.Since(start))
 
 	if state == nil {
 		return nil

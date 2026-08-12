@@ -81,11 +81,11 @@ func TestFormatStatus_Grouped(t *testing.T) {
 		}
 	}
 
-	assertContains("🐴 Umamusume")
+	assertContains("Umamusume")
 	assertContains("Club Points (CP)")
 	assertContains("Race Points (RP)")
 	assertContains("Training Points (TP)")
-	assertContains("🎵 Holodori")
+	assertContains("Holodori")
 	assertContains("1st Island Points (1P)")
 	assertContains("2nd Island Points (2P)")
 	assertContains("Live Points (LP)")

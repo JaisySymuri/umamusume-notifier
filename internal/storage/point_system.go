@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/points"
 )
 
@@ -12,6 +13,8 @@ import (
 func (s *SQLiteStore) LoadPointSystems(
 	ctx context.Context,
 ) ([]*points.PointSystem, error) {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("load_point_systems", time.Since(start))
 
 	rows, err := s.db.QueryContext(ctx, loadPointSystemsQuery)
 	if err != nil {
@@ -58,6 +61,8 @@ func (s *SQLiteStore) SavePointSystems(
 	ctx context.Context,
 	systems []*points.PointSystem,
 ) error {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("save_point_systems", time.Since(start))
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {

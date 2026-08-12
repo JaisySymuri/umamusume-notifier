@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os/signal"
 	"syscall"
 
 	"umamusume-notifier/internal/app"
 	"umamusume-notifier/internal/config"
+	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/notification"
 	"umamusume-notifier/internal/points"
 	"umamusume-notifier/internal/scheduler"
@@ -40,7 +42,6 @@ func main() {
 	// creates an empty slice of points.Definition with enough capacity to hold all systems from config
 	definitions := make([]points.Definition, 0, len(cfg.Systems))
 
-	
 	for _, system := range cfg.Systems {
 		definitions = append(definitions, points.Definition{
 			ID:           system.ID,
@@ -82,6 +83,12 @@ func main() {
 	)
 
 	go scheduler.Run(ctx)
+	go func() {
+		log.Printf("metrics server listening on http://%s/metrics", metrics.ListenAddr())
+		if err := http.ListenAndServe(metrics.ListenAddr(), metrics.Handler()); err != nil && ctx.Err() == nil {
+			log.Printf("metrics server failed: %v", err)
+		}
+	}()
 
 	bot.SendText(cfg.Telegram.ChatID, telegram.FormatServiceOnline())
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/notification"
 	"umamusume-notifier/internal/scheduler"
 )
@@ -57,6 +58,8 @@ func (m *Manager) tick(now time.Time) []notification.Event {
 			reminder.FullSent = true
 		}
 
+		event.ScheduledAt = now
+		metrics.ObserveReminderScheduled()
 		events = append(events, event)
 	}
 

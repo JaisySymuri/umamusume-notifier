@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/points"
 )
 
@@ -45,6 +46,8 @@ func (s *SQLiteStore) SyncPointSystems(
 	ctx context.Context,
 	definitions []points.Definition,
 ) error {
+	start := time.Now()
+	defer metrics.ObserveStorageOp("sync_point_systems", time.Since(start))
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
