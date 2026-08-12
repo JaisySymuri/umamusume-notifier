@@ -17,6 +17,7 @@ go build -o "$BINARY" ./cmd/server
 
 sudo systemctl stop "$SERVICE"
 sudo install -m 755 "$BINARY" "$INSTALL_DIR/$BINARY"
+sudo install -m 644 config.yaml "$INSTALL_DIR/config.yaml"
 
 sudo systemctl start "$SERVICE"
 systemctl --no-pager --lines=10 status "$SERVICE"
