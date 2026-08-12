@@ -3,7 +3,6 @@ package app
 import "time"
 import "sort"
 
-
 // Status represents the information needed to display a point system.
 type Status struct {
 	ID            string

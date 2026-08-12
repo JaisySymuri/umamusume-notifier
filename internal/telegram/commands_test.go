@@ -13,10 +13,10 @@ import (
 )
 
 type mockService struct {
-	setCalled         bool
-	setSystemID       string
-	setAmount         int
-	setErr            error
+	setCalled          bool
+	setSystemID        string
+	setAmount          int
+	setErr             error
 	consumeReplyCalled bool
 	consumeReplyMsgID  int
 	consumeReplyAmount int
@@ -138,6 +138,29 @@ func TestHandleSetError(t *testing.T) {
 
 	if sender.lastText != "boom" {
 		t.Fatalf("response = %q, want %q", sender.lastText, "boom")
+	}
+}
+
+func TestHandleStatusAlias(t *testing.T) {
+	service := &mockService{}
+	bot, sender := newTestBot(service)
+
+	msg := &tgbotapi.Message{
+		Chat: &tgbotapi.Chat{ID: 123},
+		Text: "/s",
+		Entities: []tgbotapi.MessageEntity{
+			{
+				Type:   "bot_command",
+				Offset: 0,
+				Length: 2,
+			},
+		},
+	}
+
+	bot.handleCommand(msg)
+
+	if sender.lastText != "No point systems configured." {
+		t.Fatalf("response = %q, want status output", sender.lastText)
 	}
 }
 

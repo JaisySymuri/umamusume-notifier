@@ -22,9 +22,9 @@ func TestManagerStatus(t *testing.T) {
 		pointSystems: map[string]*points.PointSystem{
 			"TP": {
 				Definition: points.Definition{
-					ID:            "TP",
-					Name:          "Training Points",
-					Max:           100,
+					ID:           "TP",
+					Name:         "Training Points",
+					Max:          100,
 					RegenMinutes: 10,
 				},
 				Current: 80,
@@ -32,9 +32,9 @@ func TestManagerStatus(t *testing.T) {
 			},
 			"CP": {
 				Definition: points.Definition{
-					ID:            "CP",
-					Name:          "Combat Points",
-					Max:           1,
+					ID:           "CP",
+					Name:         "Combat Points",
+					Max:          1,
 					RegenMinutes: 480,
 				},
 				Current: 1,

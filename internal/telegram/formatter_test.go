@@ -18,29 +18,60 @@ func TestFormatStatus_Empty(t *testing.T) {
 	}
 }
 
-func TestFormatStatus(t *testing.T) {
+func TestFormatStatus_Grouped(t *testing.T) {
 	statuses := []app.Status{
 		{
-			ID:      "CP",
-			Name:    "Combat Points",
-			Current: 1,
-			Max:     1,
+			ID:            "CP",
+			Name:          "Club Points",
+			Current:       0,
+			Max:           1,
+			TimeUntilFull: 17 * time.Minute,
+		},
+		{
+			ID:            "RP",
+			Name:          "Race Points",
+			Current:       4,
+			Max:           5,
+			TimeUntilFull: 28 * time.Minute,
+		},
+		{
+			ID:      "TP",
+			Name:    "Training Points",
+			Current: 100,
+			Max:     100,
 			Full:    true,
 		},
 		{
-			ID:            "TP",
-			Name:          "Training Points",
-			Current:       80,
-			Max:           100,
-			TimeUntilFull: 2*time.Hour + 30*time.Minute,
+			ID:            "1P",
+			Name:          "1st Island Points",
+			Current:       0,
+			Max:           1,
+			TimeUntilFull: 8 * time.Hour,
+		},
+		{
+			ID:            "2P",
+			Name:          "2nd Island Points",
+			Current:       0,
+			Max:           1,
+			TimeUntilFull: 10 * time.Hour,
+		},
+		{
+			ID:            "LP",
+			Name:          "Live Points",
+			Current:       0,
+			Max:           20,
+			TimeUntilFull: 15 * time.Hour,
+		},
+		{
+			ID:            "MP",
+			Name:          "Minigame Points",
+			Current:       0,
+			Max:           200,
+			TimeUntilFull: 23*time.Hour + 20*time.Minute,
 		},
 	}
 
 	got := FormatStatus(statuses)
-
-	if got == "" {
-		t.Fatal("FormatStatus() returned empty output")
-	}
 
 	assertContains := func(substr string) {
 		t.Helper()
@@ -50,12 +81,36 @@ func TestFormatStatus(t *testing.T) {
 		}
 	}
 
-	assertContains("Point Status")
-	assertContains("Combat Points (CP)")
-	assertContains("  1/1")
-	assertContains("  FULL")
+	assertContains("🐴 Umamusume")
+	assertContains("Club Points (CP)")
+	assertContains("Race Points (RP)")
 	assertContains("Training Points (TP)")
-	assertContains("  80/100")
-	assertContains("  Full in: 2h 30m (")
-	assertContains(" WIB)")
+	assertContains("🎵 Holodori")
+	assertContains("1st Island Points (1P)")
+	assertContains("2nd Island Points (2P)")
+	assertContains("Live Points (LP)")
+	assertContains("Minigame Points (MP)")
+	assertContains("  FULL")
+	assertContains("  Full in: 17m (")
+	assertContains("  Full in: 23h 20m (")
+}
+
+func TestFormatStatus_UnknownGroup(t *testing.T) {
+	got := FormatStatus([]app.Status{
+		{
+			ID:            "XX",
+			Name:          "Mystery Points",
+			Current:       2,
+			Max:           3,
+			TimeUntilFull: 30 * time.Minute,
+		},
+	})
+
+	if !strings.Contains(got, "Mystery Points (XX)") {
+		t.Fatalf("unexpected output:\n%s", got)
+	}
+
+	if strings.Contains(got, "Umamusume") || strings.Contains(got, "Holodori") {
+		t.Fatalf("unexpected known group in output:\n%s", got)
+	}
 }

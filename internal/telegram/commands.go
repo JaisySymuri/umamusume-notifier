@@ -15,6 +15,8 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 		b.handleHelp(msg)
 
 	case "status":
+		fallthrough
+	case "s":
 		b.handleStatus(msg)
 
 	case "use":
@@ -25,7 +27,6 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 
 	case "regen":
 		b.handleRegen(msg)
-	
 	case "set":
 		b.handleSet(msg)
 
@@ -160,8 +161,6 @@ func (b *Bot) handleRegen(msg *tgbotapi.Message) {
 		),
 	)
 }
-
-
 
 func (b *Bot) handleReply(msg *tgbotapi.Message) {
 	amount, err := strconv.Atoi(strings.TrimSpace(msg.Text))
