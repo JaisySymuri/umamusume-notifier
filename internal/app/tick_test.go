@@ -76,7 +76,7 @@ func TestManagerTickRecordsScheduledMetric(t *testing.T) {
 		t.Fatalf("expected scheduled metric, got:\n%s", rr.Body.String())
 	}
 
-	if !strings.Contains(rr.Body.String(), "bot_full_over_hour_total 1") {
-		t.Fatalf("expected over-hour metric, got:\n%s", rr.Body.String())
+	if strings.Contains(rr.Body.String(), "bot_full_over_hour_total") {
+		t.Fatalf("removed metric still exposed, got:\n%s", rr.Body.String())
 	}
 }

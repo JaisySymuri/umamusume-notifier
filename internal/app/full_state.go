@@ -23,12 +23,21 @@ func (m *Manager) logManualAdjustment(system *points.PointSystem, reminder *poin
 		fullFor = 0
 	}
 
+	fullForMinutes := int(fullFor.Minutes())
+	lateMinutes := fullForMinutes - 60
+	if lateMinutes < 0 {
+		lateMinutes = 0
+	}
+	late := lateMinutes > 0
+
 	m.logger.Printf(
-		"event=manual_adjust_after_full action=%s system_id=%s system_name=%q full_for_minutes=%d adjusted_at=%s",
+		"event=manual_adjust_after_full action=%s system_id=%s system_name=%q full_for_minutes=%d late=%t late_minutes=%d adjusted_at=%s",
 		action,
 		system.ID,
 		system.Name,
-		int(fullFor.Minutes()),
+		fullForMinutes,
+		late,
+		lateMinutes,
 		now.UTC().Format(time.RFC3339),
 	)
 }

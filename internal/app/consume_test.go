@@ -145,6 +145,8 @@ func TestManagerConsume_LogsManualAdjustmentAfterFull(t *testing.T) {
 		"system_id=TP",
 		"system_name=\"Training Points\"",
 		"full_for_minutes=87",
+		"late=true",
+		"late_minutes=27",
 		"adjusted_at=",
 	} {
 		if !strings.Contains(got, want) {

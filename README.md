@@ -112,7 +112,7 @@ The endpoint also includes the standard Go/process collectors, such as:
 When a system is manually adjusted after being full, the app emits a structured log line like:
 
 ```text
-event=manual_adjust_after_full action=consume system_id=TP system_name="Training Points" full_for_minutes=87 adjusted_at=2026-08-12T15:30:00Z
+event=manual_adjust_after_full action=consume system_id=TP system_name="Training Points" full_for_minutes=87 late=true late_minutes=27 adjusted_at=2026-08-12T15:30:00Z
 ```
 
 This is meant for Loki queries such as:
@@ -128,6 +128,8 @@ Useful fields:
 - `system_id` - point system ID
 - `system_name` - point system display name
 - `full_for_minutes` - how long the system was full before the manual change
+- `late` - `true` when the system was kept full for more than 60 minutes
+- `late_minutes` - minutes beyond the 60 minute tolerance
 - `adjusted_at` - timestamp of the manual change in UTC
 
 ## Telegram Commands
