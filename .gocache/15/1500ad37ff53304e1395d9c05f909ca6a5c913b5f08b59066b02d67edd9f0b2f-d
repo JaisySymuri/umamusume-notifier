@@ -1,8 +1,0 @@
-./doc.go
-./migrate.go
-./point_system.go
-./reminder_state.go
-./repository.go
-./schema.go
-./sqlite.go
-./sync.go
