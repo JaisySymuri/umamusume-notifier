@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -113,11 +114,67 @@ func FormatHelp() string {
 
 	b.WriteString("Available commands:\n\n")
 	b.WriteString("/status, /s - Show all point systems.\n")
+	b.WriteString("/t - Show the 3 systems that will be full soonest.\n")
 	b.WriteString("/help - Show this help message.\n")
 	b.WriteString("/use <SYSTEM> <AMOUNT> - Consume or add points.\n")
 	b.WriteString("/set <SYSTEM> <AMOUNT> - Set current points directly.\n")
 	b.WriteString("/elapsed <SYSTEM> <MINUTES> - Set elapsed regeneration time.")
 	b.WriteString("\n/regen <SYSTEM> <MINUTES_LEFT> - Set minutes left until the next point.")
+
+	return b.String()
+}
+
+// FormatSoonestToFull returns the three systems closest to being full.
+func FormatSoonestToFull(statuses []app.Status) string {
+	if len(statuses) == 0 {
+		return "No point systems configured."
+	}
+
+	filtered := make([]app.Status, 0, len(statuses))
+	for _, status := range statuses {
+		if status.Full {
+			continue
+		}
+
+		filtered = append(filtered, status)
+	}
+
+	if len(filtered) == 0 {
+		return "All point systems are already full."
+	}
+
+	sort.Slice(filtered, func(i, j int) bool {
+		if filtered[i].TimeUntilFull == filtered[j].TimeUntilFull {
+			return filtered[i].ID < filtered[j].ID
+		}
+
+		return filtered[i].TimeUntilFull < filtered[j].TimeUntilFull
+	})
+
+	if len(filtered) > 3 {
+		filtered = filtered[:3]
+	}
+
+	now := time.Now()
+	var b strings.Builder
+	b.WriteString("Soonest to full:\n\n")
+
+	for i, status := range filtered {
+		if i > 0 {
+			b.WriteString("\n\n")
+		}
+
+		fmt.Fprintf(
+			&b,
+			"%s (%s)\n  %d/%d\n  Full in: %s (%s)",
+			status.Name,
+			status.ID,
+			status.Current,
+			status.Max,
+			formatDuration(status.TimeUntilFull),
+			formatFullTime(now, status.TimeUntilFull),
+		)
+	}
 
 	return b.String()
 }

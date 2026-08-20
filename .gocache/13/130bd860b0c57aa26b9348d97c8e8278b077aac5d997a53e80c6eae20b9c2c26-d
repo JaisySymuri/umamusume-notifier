@@ -1,0 +1,13 @@
+./bot.go
+./commands.go
+./dispatcher.go
+./formatter.go
+./notifications.go
+./parser.go
+./sender.go
+./service.go
+./time.go
+./commands_test.go
+./formatter_test.go
+./parser_test.go
+./sender_test.go

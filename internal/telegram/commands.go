@@ -22,6 +22,10 @@ func (b *Bot) handleCommand(msg *tgbotapi.Message) {
 		b.handleStatus(msg)
 		metrics.ObserveCommand("status", "success")
 
+	case "t":
+		b.handleSoonestToFull(msg)
+		metrics.ObserveCommand("t", "success")
+
 	case "use":
 		if err := b.handleUse(msg); err != nil {
 			metrics.ObserveCommand("use", "error")
@@ -61,6 +65,11 @@ func (b *Bot) handleHelp(msg *tgbotapi.Message) {
 func (b *Bot) handleStatus(msg *tgbotapi.Message) {
 	status := b.service.Status()
 	b.SendText(msg.Chat.ID, FormatStatus(status))
+}
+
+func (b *Bot) handleSoonestToFull(msg *tgbotapi.Message) {
+	status := b.service.Status()
+	b.SendText(msg.Chat.ID, FormatSoonestToFull(status))
 }
 
 func (b *Bot) handleUse(msg *tgbotapi.Message) error {

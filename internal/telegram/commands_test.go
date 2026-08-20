@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"umamusume-notifier/internal/app"
 	"umamusume-notifier/internal/metrics"
@@ -25,10 +26,11 @@ type mockService struct {
 	consumeReplyMsgID  int
 	consumeReplyAmount int
 	consumeReplyErr    error
+	status             []app.Status
 }
 
 func (m *mockService) Status() []app.Status {
-	return nil
+	return m.status
 }
 
 func (m *mockService) Consume(context.Context, string, int) error {
@@ -165,6 +167,68 @@ func TestHandleStatusAlias(t *testing.T) {
 
 	if sender.lastText != "No point systems configured." {
 		t.Fatalf("response = %q, want status output", sender.lastText)
+	}
+}
+
+func TestHandleSoonestToFull(t *testing.T) {
+	service := &mockService{
+		status: []app.Status{
+			{
+				ID:            "TP",
+				Name:          "Training Points",
+				Current:       90,
+				Max:           100,
+				TimeUntilFull: 100 * time.Hour,
+			},
+			{
+				ID:            "CP",
+				Name:          "Club Points",
+				Current:       0,
+				Max:           1,
+				TimeUntilFull: 10 * time.Minute,
+			},
+			{
+				ID:            "RP",
+				Name:          "Race Points",
+				Current:       4,
+				Max:           5,
+				TimeUntilFull: 30 * time.Minute,
+			},
+			{
+				ID:      "LP",
+				Name:    "Live Points",
+				Current: 20,
+				Max:     20,
+				Full:    true,
+			},
+		},
+	}
+	bot, sender := newTestBot(service)
+
+	msg := &tgbotapi.Message{
+		Chat: &tgbotapi.Chat{ID: 123},
+		Text: "/t",
+		Entities: []tgbotapi.MessageEntity{
+			{
+				Type:   "bot_command",
+				Offset: 0,
+				Length: 2,
+			},
+		},
+	}
+
+	bot.handleCommand(msg)
+
+	if !strings.Contains(sender.lastText, "Soonest to full:") {
+		t.Fatalf("response = %q, want soonest-to-full output", sender.lastText)
+	}
+
+	if strings.Index(sender.lastText, "Club Points (CP)") > strings.Index(sender.lastText, "Race Points (RP)") {
+		t.Fatalf("systems not sorted by soonest full:\n%s", sender.lastText)
+	}
+
+	if strings.Contains(sender.lastText, "Live Points (LP)") {
+		t.Fatalf("full system should not be included:\n%s", sender.lastText)
 	}
 }
 
