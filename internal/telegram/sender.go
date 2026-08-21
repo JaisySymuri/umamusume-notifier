@@ -9,6 +9,7 @@ import (
 
 	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/notification"
+	gas "umamusume-notifier/internal/appdynamics"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -46,13 +47,27 @@ func (s *telegramSender) Send(
 }
 
 func (b *Bot) SendText(chatID int64, text string) {
+	btHandle := gas.StartBT("SendText", "")
+
+    defer func() {
+        gas.EndBT(btHandle)
+    }()
+
 	_, err := b.sender.Send(chatID, text)
 	if err != nil {
+		gas.AddBTError(
+                btHandle,
+                gas.APPD_LEVEL_ERROR,
+                err.Error(),
+                true,
+            )
 		b.logger.Printf("telegram send failed: chat_id=%d: %v", chatID, err)
 	}
 }
 
 func (b *Bot) SendNotification(chatID int64, event notification.Event) (int, error) {
+	// start the "Checkout" transaction. On top of func
+    
 	messageID, err := b.sender.Send(chatID, FormatNotification(event))
 	if err != nil {
 		b.logger.Printf("telegram notify failed: chat_id=%d: %v", chatID, err)

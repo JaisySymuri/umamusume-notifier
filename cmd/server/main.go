@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 
 	"umamusume-notifier/internal/app"
+	gas "umamusume-notifier/internal/appdynamics"
 	"umamusume-notifier/internal/config"
 	"umamusume-notifier/internal/metrics"
 	"umamusume-notifier/internal/notification"
@@ -18,6 +20,26 @@ import (
 )
 
 func main() {
+	acfg := gas.Config{}
+	// Controller
+	acfg.Controller.Host = "192.168.1.124.nip.io"
+	acfg.Controller.Port = 443
+	acfg.Controller.UseSSL = true
+	acfg.Controller.Account = "customer1"
+	acfg.Controller.AccessKey = "d6455146-9662-4e13-bae3-fe7958fd1ea6"
+	// App Context
+	acfg.AppName = "telegram-bot-app"
+	acfg.TierName = "telegram-bot-tier"
+	acfg.NodeName = "telegram-bot-node"
+	// misc
+	acfg.InitTimeoutMs = 1000
+	// init the SDK - Only for Linux
+	if err := gas.InitSDK(&acfg); err != nil {
+		fmt.Printf("Error initializing the AppDynamics SDK\n")
+	} else {
+		fmt.Printf("Initialized AppDynamics SDK successfully\n")
+	}
+
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
 		syscall.SIGINT,
@@ -96,5 +118,8 @@ func main() {
 	if err := bot.Start(ctx); err != nil && ctx.Err() == nil {
 		log.Fatal(err)
 	}
+
+	// Stop/Clean up the AppD SDK. Bottom of the func
+	gas.TerminateSDK()
 
 }
