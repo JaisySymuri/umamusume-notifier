@@ -58,6 +58,10 @@ func (s *Service) Notify(
 		metrics.ObserveReminderDeliveryDelay(time.Since(event.ScheduledAt))
 	}
 
+	if event.Type == Milestone {
+		return nil
+	}
+
 	return s.recorder.RecordReminderMessage(
 		ctx,
 		event.SystemID,

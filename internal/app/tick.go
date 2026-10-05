@@ -35,10 +35,28 @@ func (m *Manager) tick(now time.Time) []notification.Event {
 			panic("missing reminder state for point system " + id)
 		}
 
+		previousPoints := system.Current
 		delta := now.Sub(system.LastTick)
 
 		system.Advance(delta)
 		system.LastTick = now
+
+		if id == "LP" {
+			firstMilestone := (previousPoints/3 + 1) * 3
+			if previousPoints < 0 {
+				firstMilestone = 0
+			}
+			for points := firstMilestone; points <= system.Current && points > previousPoints; points += 3 {
+				events = append(events, notification.Event{
+					SystemID:    system.ID,
+					SystemName:  system.Name,
+					Type:        notification.Milestone,
+					Points:      points,
+					ScheduledAt: now,
+				})
+				metrics.ObserveReminderScheduled()
+			}
+		}
 
 		event, ok := scheduler.ShouldAlert(
 			system,

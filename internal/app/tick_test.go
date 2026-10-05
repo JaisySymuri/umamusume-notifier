@@ -80,3 +80,42 @@ func TestManagerTickRecordsScheduledMetric(t *testing.T) {
 		t.Fatalf("removed metric still exposed, got:\n%s", rr.Body.String())
 	}
 }
+
+func TestManagerTickEmitsLivePointMilestones(t *testing.T) {
+	now := time.Date(2026, 10, 5, 12, 0, 0, 0, time.UTC)
+	manager := &Manager{
+		store: &tickMockStore{},
+		pointSystems: map[string]*points.PointSystem{
+			"LP": {
+				Definition: points.Definition{ID: "LP", Name: "Live Points", Max: 20, RegenMinutes: 1},
+				Current:    2,
+				LastTick:   now.Add(-4 * time.Minute),
+			},
+			"TP": {
+				Definition: points.Definition{ID: "TP", Name: "Training Points", Max: 100, RegenMinutes: 1},
+				Current:    2,
+				LastTick:   now.Add(-4 * time.Minute),
+			},
+		},
+		reminders: map[string]*points.ReminderState{
+			"LP": {SystemID: "LP", AlertSent: true},
+			"TP": {SystemID: "TP", AlertSent: true},
+		},
+		alertThreshold: 0,
+	}
+
+	events := manager.tick(now)
+	var milestones []int
+	for _, event := range events {
+		if event.Type == notification.Milestone {
+			if event.SystemID != "LP" {
+				t.Fatalf("milestone system = %q, want LP", event.SystemID)
+			}
+			milestones = append(milestones, event.Points)
+		}
+	}
+
+	if len(milestones) != 2 || milestones[0] != 3 || milestones[1] != 6 {
+		t.Fatalf("milestones = %v, want [3 6]", milestones)
+	}
+}

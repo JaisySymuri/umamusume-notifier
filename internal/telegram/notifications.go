@@ -55,6 +55,9 @@ func FormatNotification(event notification.Event) string {
 			event.SystemID,
 		)
 
+	case notification.Milestone:
+		return fmt.Sprintf("🎵 Live Points: %d", event.Points)
+
 	default:
 		return event.SystemID
 	}
