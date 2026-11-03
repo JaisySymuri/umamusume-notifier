@@ -4,8 +4,10 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"umamusume-notifier/internal/app"
 	"umamusume-notifier/internal/config"
@@ -25,6 +27,27 @@ func main() {
 	)
 	defer stop()
 
+	go func() {
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case <-ticker.C:
+				if _, err := os.Stat("shutdown.flag"); err == nil {
+					log.Println("Shutdown flag detected.")
+					stop()
+					return
+				} else if !os.IsNotExist(err) {
+					log.Printf("Shutdown flag check failed: %v", err)
+				}
+			}
+		}
+	}()
+
 	cfg, err := config.Load("config.yaml")
 	if err != nil {
 		log.Fatal(err)
@@ -34,6 +57,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	defer func() {
+		if err := store.Close(); err != nil {
+			log.Printf("SQLite shutdown failed: %v", err)
+		} else {
+			log.Println("SQLite database connection closed.")
+		}
+	}()
 
 	if err := store.Initialize(ctx); err != nil {
 		log.Fatal(err)
@@ -84,17 +115,53 @@ func main() {
 	)
 
 	go scheduler.Run(ctx)
+
+	metricsServer := &http.Server{
+		Addr:    metrics.ListenAddr(),
+		Handler: metrics.Handler(),
+	}
+
 	go func() {
 		log.Printf("metrics server listening on http://%s/metrics", metrics.ListenAddr())
-		if err := http.ListenAndServe(metrics.ListenAddr(), metrics.Handler()); err != nil && ctx.Err() == nil {
+
+		if err := metricsServer.ListenAndServe(); err != nil &&
+			err != http.ErrServerClosed {
 			log.Printf("metrics server failed: %v", err)
+			stop()
+		}
+	}()
+
+	bot.SendText(cfg.Telegram.ChatID, telegram.FormatServiceOnline())
+
+	go func() {
+		log.Printf("metrics server listening on http://%s/metrics", metrics.ListenAddr())
+
+		if err := metricsServer.ListenAndServe(); err != nil &&
+			err != http.ErrServerClosed {
+			log.Printf("metrics server failed: %v", err)
+			stop()
 		}
 	}()
 
 	bot.SendText(cfg.Telegram.ChatID, telegram.FormatServiceOnline())
 
 	if err := bot.Start(ctx); err != nil && ctx.Err() == nil {
-		log.Fatal(err)
+		log.Printf("Bot failed: %v", err)
 	}
 
+	stop()
+
+	log.Println("Shutting down application...")
+
+	shutdownCtx, cancel := context.WithTimeout(
+		context.Background(),
+		10*time.Second,
+	)
+	defer cancel()
+
+	if err := metricsServer.Shutdown(shutdownCtx); err != nil {
+		log.Printf("Metrics server shutdown failed: %v", err)
+	}
+
+	log.Println("Application shutdown completed.")
 }
